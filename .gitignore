@@ -1,0 +1,25 @@
+.venv/
+venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+.env
+backend/.env
+backend/study_planner.db
+backend/uploads/*
+!backend/uploads/.gitkeep
+frontend/node_modules/
+frontend/dist/
+.DS_Store
+
+backend/logs/*.log
+backend/backups/*
+!backend/backups/.gitkeep
+alembic.ini.bak
+
+# Additional deployment protection
+backend/__pycache__/
+backend/.pytest_cache/
+frontend/dist/
+.env.*
+!.env.example

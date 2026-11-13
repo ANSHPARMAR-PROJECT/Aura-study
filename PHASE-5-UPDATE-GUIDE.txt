@@ -1,0 +1,115 @@
+AURA STUDY — PHASE 5 UPDATE
+Production Readiness: Security, Migrations, Backups, Logging, and Deployment
+
+IMPORTANT: This is an update patch for the existing Phase 4 project. Do not
+replace your .env, study_planner.db, uploads folder, node_modules, or lockfile.
+
+1) STOP BOTH SERVERS
+   Press Ctrl+C in the Flask and Vite terminals.
+
+2) BACK UP EXISTING DATA
+   Copy these to a safe location:
+     - backend/.env
+     - backend/study_planner.db
+     - the entire backend/uploads/ folder
+
+   After the patch is installed, you can also create a consistent backup with:
+     python backend/scripts/backup_database.py
+
+3) EXTRACT THE PHASE 5 PATCH
+   Extract to a separate folder and open its aura-study directory.
+
+4) COPY / REPLACE SOURCE FILES
+   Copy the following into the existing project, replacing matching files:
+     - backend/app.py
+     - backend/database.py
+     - backend/requirements.txt
+     - backend/.env.example
+     - backend/tests/test_api.py
+     - backend/tests/test_phase5.py (new)
+     - backend/migrations/ (new folder)
+     - backend/scripts/ (new folder)
+     - frontend/vite.config.js
+     - alembic.ini (new)
+     - Dockerfile (new)
+     - docker-compose.production.yml (new)
+     - .dockerignore (new)
+     - deploy/nginx-aura.conf (new)
+     - README.md
+     - PHASE-5-UPDATE-GUIDE.txt
+     - .gitignore
+
+   Keep unchanged:
+     - backend/.env
+     - backend/study_planner.db
+     - backend/uploads/
+     - frontend/node_modules/
+     - frontend/package-lock.json
+
+5) UPDATE THE FLASK SECRET (REQUIRED)
+   Open backend/.env in Notepad. Generate a fresh key from the project root:
+     python -c "import secrets; print(secrets.token_hex(32))"
+   Replace only the FLASK_SECRET_KEY value with the generated 64-character hex
+   string. Do not paste the key into ChatGPT or commit it to Git. This rotates
+   authentication signing, so sign in again after restart. Your user records,
+   courses, projects, logs, learning history, groups, and resources are retained.
+
+6) INSTALL NEW BACKEND PACKAGES
+   With .venv active, from the project root:
+     python -m pip install -r backend\requirements.txt
+   This adds Alembic and Waitress. Gunicorn is installed only on non-Windows.
+   Existing packages are retained.
+
+7) RUN ALL BACKEND TESTS
+   From the project root:
+     python -m pytest backend\tests -q
+   Expected: all tests pass. If there are failures, stop and share the complete
+   output before proceeding.
+
+8) BUILD THE FRONTEND
+   From the project root:
+     cd frontend
+     npm install
+     npm run build
+     cd ..
+   Vite should complete successfully. Phase 5 adds explicit vendor chunking to
+   reduce the large all-in-one JavaScript bundle warning.
+
+9) VERIFY DATABASE AND BACKUP
+   From the project root:
+     python backend\scripts\verify_database.py
+     python backend\scripts\backup_database.py
+   The verification should report database connection OK and all required
+   tables OK. The backup is created in backend/backups/ by default.
+
+10) START AURA FOR LOCAL DEVELOPMENT
+   Terminal 1:
+     cd backend
+     python app.py
+   Terminal 2:
+     cd frontend
+     npm run dev
+   Open the Vite URL and sign in again with your existing account.
+
+WHAT PHASE 5 ADDS
+   - 32-byte minimum signing key enforcement and timezone-aware JWT claims.
+   - Database-backed rate limits for login, registration, AI generation and group joins.
+   - CSP and additional browser security headers.
+   - Request IDs, rotating logs, and public health endpoint.
+   - Alembic migration baseline that creates missing tables without dropping rows.
+   - Consistent SQLite backup and PostgreSQL pg_dump backup script.
+   - Database verification script.
+   - Windows Waitress / Linux Gunicorn production server support.
+   - Dockerfile, production Compose and Nginx HTTPS reverse-proxy example.
+   - Vite manual chunks for React, charts, animation, icons, and drag-and-drop.
+
+IMPORTANT PRODUCTION NOTES
+   Local development remains AUTO_CREATE_DB=true. For production, back up first,
+   run `alembic upgrade head`, then set AUTO_CREATE_DB=false. Use HTTPS,
+   FLASK_ENV=production, FLASK_DEBUG=false, COOKIE_SECURE=true, a strong secret,
+   exact AURA_ALLOWED_HOSTS, and a real reverse proxy. TRUSTED_PROXY_COUNT must
+   match the number of trusted proxies. Never expose Flask's development server.
+
+   docker-compose.production.yml requires POSTGRES_PASSWORD and AURA_ALLOWED_HOSTS
+   in the deployment environment. The included Nginx configuration uses example
+   domain and certificate paths; replace them with real values.

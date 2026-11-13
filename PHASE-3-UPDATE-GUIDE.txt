@@ -1,0 +1,72 @@
+AURA STUDY — PHASE 3 UPDATE
+===========================
+
+This is a source-code update for the existing Phase 2 AURA Study project.
+It preserves the existing Flask + React stack and adds analytics, goals,
+achievements, notifications, and personal reminders.
+
+BEFORE COPYING
+--------------
+1. Stop the Flask and Vite terminals with Ctrl+C.
+2. Back up backend/.env and backend/study_planner.db.
+3. Do not remove backend/uploads or frontend/node_modules.
+
+COPY THE UPDATE
+---------------
+Extract this ZIP. Copy the contents of its aura-study folder into the
+existing aura-study project folder and choose Replace for matching source
+files.
+
+Files updated/added:
+- backend/app.py                  (replace)
+- backend/database.py             (replace)
+- backend/ai_engine.py             (replace; uses the tested Gemini model as default)
+- backend/learning_engine.py       (replace; uses the tested Gemini model as default)
+- backend/.env.example             (replace; template only)
+- backend/tests/test_productivity.py (new)
+- frontend/src/App.jsx             (replace)
+- frontend/src/index.css           (replace)
+- README.md                        (replace)
+
+KEEP THESE EXISTING FILES:
+- backend/.env                     (keep your Gemini and Flask secrets)
+- backend/study_planner.db         (keep all student data)
+- backend/uploads/                 (keep uploaded resources)
+- frontend/node_modules/           (keep installed packages)
+- frontend/package-lock.json       (keep installed dependency lockfile)
+
+No new Python or npm packages are required. New SQLAlchemy tables are
+created automatically on backend startup. Existing user/course/project/
+study/learning tables are preserved.
+
+RUN THE UPDATED PROJECT
+-----------------------
+Terminal 1 (project root):
+  .\.venv\Scripts\Activate.ps1
+  cd backend
+  python app.py
+
+Terminal 2 (project root):
+  .\.venv\Scripts\Activate.ps1
+  cd frontend
+  npm run dev
+
+Open the Vite URL, normally http://127.0.0.1:5173/.
+
+VERIFY
+------
+From the project root:
+  python -m pytest backend\tests -q
+
+From the frontend folder:
+  npm run build
+
+NOTES
+-----
+- The Productivity screen supports 7-, 30-, and 90-day reports.
+- Exam/task alerts are shown in the in-app notification center.
+- Personal reminders are polled every 60 seconds while AURA is open.
+  They are not push notifications and will not fire if the browser/app closes.
+- The daily goal uses your saved daily_goal_hours preference.
+- Study time for course-linked timer sessions is not double-counted.
+- If you dismiss an automatic notification, it is not recreated.
